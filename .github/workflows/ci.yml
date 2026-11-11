@@ -48,3 +48,25 @@ jobs:
         with:
           name: iflix-jar
           path: backend/target/*.jar
+  imagem:
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v7
+        with:
+          context: backend
+          push: true
+          tags: |
+            ghcr.io/fernandotetu/iflix:latest
+            ghcr.io/fernandotetu/iflix:${{ github.sha }}
+    
