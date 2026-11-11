@@ -1,0 +1,22 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [ CI ]
+    types: [ completed ]
+    branches: [ main ]
+
+jobs:
+  homologacao:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    environment: homologacao
+    steps:
+      - run: echo "Deploy em homologação da imagem ghcr.io/fernandotetu/iflix:${{ github.event.workflow_run.head_sha }}"
+
+  producao:
+    needs: homologacao
+    runs-on: ubuntu-latest
+    environment: producao
+    steps:
+      - run: echo "Deploy em produção da imagem ghcr.io/fernandotetu/iflix:${{ github.event.workflow_run.head_sha }}"
